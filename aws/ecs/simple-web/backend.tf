@@ -6,7 +6,7 @@ terraform {
       name = "simple-web"
     }
   }
-# Set provider AWS. Version 5.95.0
+  # Set provider AWS. Version 5.95.0
   required_providers {
     aws = {
       source  = "hashicorp/aws"
