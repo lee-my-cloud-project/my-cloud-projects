@@ -1,4 +1,15 @@
-{
-    "name": "flask-web",
-    "image": "345003923266.dkr.ecr.ap-northeast-2.amazonaws.com/cloud-projects:simple-web0.1"
-}
+[
+    {
+        "name": "flask-web",
+        "image": "345003923266.dkr.ecr.ap-northeast-2.amazonaws.com/cloud-projects:simple-web0.1",
+        "portMappings": [
+            {
+                "name": "flask-web",
+                "containerPort": 5000,
+                "hostPort": 5000,
+                "protocol": "tcp",
+                "appProtocol": "http"
+            }
+        ]
+    }
+]

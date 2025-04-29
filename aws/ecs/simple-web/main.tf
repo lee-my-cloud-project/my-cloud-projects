@@ -25,21 +25,27 @@ resource "aws_iam_role" "allow_ecs" {
     "IaCTool" = "Terraform"
   }
 }
-
+# 정책 문서. AWS ECR로 부터 Image를 받을 수 있도록 되어있음.
 resource "aws_iam_policy" "allow_ecs" {
   name   = "Simple-Web-Access"
   policy = file("iam/policy/ECS-AllowECRAccess.json")
 }
-
+# 정책 문서를 역할에 연결
 resource "aws_iam_role_policy_attachment" "attach_document" {
   role       = aws_iam_role.allow_ecs.name
   policy_arn = aws_iam_policy.allow_ecs.arn
 }
-## 정책이 만들어지지 않아 잠시 주석 처리
-#Create ECS Task Definition
-# resource "aws_ecs_task_definition" "simple_web" {
-#   family = "simple-web"
-#   container_definitions = file("ecs/task_definitions/simple_web.json")
 
-#   execution_role_arn = ""
-# }
+## ECS Service
+#Create ECS Task Definition
+resource "aws_ecs_task_definition" "simple_web" {
+  family                = "simple-web"
+  container_definitions = file("ecs/task_definitions/simple_web.json")
+
+  # 하드웨어 설정
+  cpu    = 256
+  memory = 512
+
+  # 역할 연결. 정책을 통해 Image를 Registry에서 받을 수 있음.
+  execution_role_arn = aws_iam_role.allow_ecs.arn
+}
