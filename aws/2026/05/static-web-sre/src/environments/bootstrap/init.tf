@@ -30,6 +30,17 @@ resource "aws_s3_bucket_versioning" "static_web_sre-enable_versioning" {
     status = "Enabled"
   }
 }
+# S3 # Dev, Prod Branch가 사용할 디랙토리 생성
+# Dev
+resource "aws_s3_object" "dev_directory" {
+  bucket = aws_s3_bucket.static_web_sre-state_storage.id
+  key    = "dev/"
+}
+# Prod
+resource "aws_s3_object" "prod_directory" {
+  bucket = aws_s3_bucket.static_web_sre-state_storage.id
+  key    = "prod/"
+}
 
 # IAM # Github Action이 사용할 IAM OIDC Connector
 resource "aws_iam_openid_connect_provider" "github" {
