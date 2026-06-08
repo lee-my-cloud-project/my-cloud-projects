@@ -51,12 +51,32 @@ resource "aws_iam_openid_connect_provider" "github" {
   tags = var.env_bootstrap
 }
 
+# IAM # IAM Role 생성. "github_action-dev"
 resource "aws_iam_role" "github_action-dev" {
   name               = var.iam_name-dev
   assume_role_policy = templatefile("./iam/role/dev/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_repo = var.git_repo })
+
+  tags = var.env_bootstrap
+}
+# IAM 정책 문서 생성 "github_action-dev"
+resource "aws_iam_policy" "github_action-dev" {
+  name        = "github_action-dev"
+  description = "Let github action access S3 Bucket"
+  policy      = templatefile("./iam/policy_docs/dev/github_action.json", { aws_s3_arn = aws_s3_bucket.static_web_sre-state_storage.arn })
+
+  tags = var.env_bootstrap
 }
 
+# IAM # IAM Role 생성. "github_action-prod"
 resource "aws_iam_role" "github_action-prod" {
   name               = var.iam_name-prod
   assume_role_policy = templatefile("./iam/role/prod/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_repo = var.git_repo })
+}
+# IAM 정책 문서 생성 "github_action-prod"
+resource "aws_iam_policy" "github_action-prod" {
+  name        = "github_action-prod"
+  description = "Let github action access S3 Bucket"
+  policy      = templatefile("./iam/policy_docs/prod/github_action.json", { aws_s3_arn = aws_s3_bucket.static_web_sre-state_storage.arn })
+
+  tags = var.env_bootstrap
 }
