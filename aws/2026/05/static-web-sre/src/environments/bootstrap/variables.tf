@@ -167,6 +167,11 @@ variable "thumbprint_list" {
   default     = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
+variable "git_org" {
+  type = string
+  description = "Github Organization"
+}
+
 variable "git_repo" {
   type        = string
   description = "Git 저장소 이름"
