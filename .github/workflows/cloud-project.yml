@@ -1,0 +1,36 @@
+name: Show Current IAM Role
+
+on:
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  PROD_ROLE: arn:aws:iam::345003923266:role/github_action-prod_branch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  show-iam-role:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Git 저장소 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # AWS IAM Role Assume
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.1
+        with:
+          role-to-assume: ${{ env.PROD_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 현재 사용 중인 IAM Role 확인
+      - name: Show IAM Role
+        run: |
+          aws sts get-caller-identity
