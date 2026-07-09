@@ -5,7 +5,7 @@ on:
     branches:
       - dev
     paths:
-      - 'aws/2026/05/static-web-sre/src/environments/dev/'
+      - 'aws/2026/05/static-web-sre/src/environments/dev/**'
   workflow_dispatch:
 
 env:
