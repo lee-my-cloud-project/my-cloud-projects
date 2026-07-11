@@ -1,4 +1,4 @@
-name: Show Current IAM Role
+name: Test
 
 on:
   push:
@@ -8,31 +8,22 @@ on:
       - 'aws/2026/05/static-web-sre/src/environments/dev/**'
   workflow_dispatch:
 
-env:
-  AWS_REGION: ap-northeast-2
-  DEV_ROLE: arn:aws:iam::345003923266:role/github_action-dev_branch
-
 permissions:
   id-token: write
   contents: read
 
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::345003923266:role/github_action-dev_branch
+
 jobs:
-  show-iam-role:
+  test-job:
     runs-on: ubuntu-latest
 
     steps:
-      # Git 저장소 가져오기
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      # AWS IAM Role Assume
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.2.1
-        with:
-          role-to-assume: ${{ env.DEV_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      # 현재 사용 중인 IAM Role 확인
+      # 현재 사용중인 IAM Role 보여주기
       - name: Show IAM Role
-        run: |
-          aws sts get-caller-identity
+        uses: ./.github/actions/show-iam-role
+        with:
+          role-arn: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
