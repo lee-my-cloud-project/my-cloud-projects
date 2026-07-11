@@ -21,6 +21,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Git 저장소 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       # 현재 사용중인 IAM Role 보여주기
       - name: Show IAM Role
         uses: ./.github/actions/show-iam-role
