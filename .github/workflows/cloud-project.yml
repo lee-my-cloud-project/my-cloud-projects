@@ -15,10 +15,14 @@ permissions:
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::345003923266:role/github_action-dev_branch
+  WORKING_DIR: aws/2026/05/static-web-sre/src/environments/dev/
 
 jobs:
   start-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       # Git 저장소 가져오기
