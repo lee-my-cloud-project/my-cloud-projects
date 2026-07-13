@@ -4,7 +4,7 @@ variable "region" {
 }
 
 # S3 #
-# Bucket 이름
+# Bucket
 variable "s3_name" {
   type        = string
   description = "AWS S3의 이름"

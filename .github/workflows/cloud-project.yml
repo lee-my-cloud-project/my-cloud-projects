@@ -1,4 +1,4 @@
-name: Test
+name: Test Access
 
 on:
   push:
@@ -36,26 +36,30 @@ jobs:
           role-arn: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Terraform 작업
-      - name: Terraform Setup
-        uses: hashicorp/setup-terraform@v4.0.1
-        with:
-          terraform_version: "1.15.4"
+      - name: S3 API test(Head-Object)
+        id: s3api_test-head_object
+        run: aws s3api head-object --bucket lee-static-web-sre-state-storage --key dev/state.tfstate
 
-      - name: Terraform Init
-        id: init
-        run: terraform init -input=false
+      # # Terraform 작업
+      # - name: Terraform Setup
+      #   uses: hashicorp/setup-terraform@v4.0.1
+      #   with:
+      #     terraform_version: "1.15.4"
 
-      - name: Terraform Validate
-        id: validate
-        run: terraform init -no-color
+      # - name: Terraform Init
+      #   id: init
+      #   run: terraform init -input=false
 
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan -out put_object -no-color -input=false
-        continue-on-error: true
+      # - name: Terraform Validate
+      #   id: validate
+      #   run: terraform init -no-color
 
-      - name: Terraform Apply
-        id: Apply
-        run: terraform apply put_object
-        continue-on-error: true
+      # - name: Terraform Plan
+      #   id: plan
+      #   run: terraform plan -out put_object -no-color -input=false
+      #   continue-on-error: true
+
+      # - name: Terraform Apply
+      #   id: Apply
+      #   run: terraform apply put_object
+      #   continue-on-error: true
