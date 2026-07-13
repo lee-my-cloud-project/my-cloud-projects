@@ -86,7 +86,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out put_object -no-color -input=false
+        run: terraform plan -out put_object -var-file dev.tfvars -no-color -input=false
         continue-on-error: true
 
       - name: Terraform Apply
