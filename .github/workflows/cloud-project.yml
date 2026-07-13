@@ -80,16 +80,16 @@ jobs:
         id: init
         run: terraform init -input=false
 
-      # - name: Terraform Validate
-      #   id: validate
-      #   run: terraform init -no-color
+      - name: Terraform Validate
+        id: validate
+        run: terraform init -no-color
 
-      # - name: Terraform Plan
-      #   id: plan
-      #   run: terraform plan -out put_object -no-color -input=false
-      #   continue-on-error: true
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out put_object -no-color -input=false
+        continue-on-error: true
 
-      # - name: Terraform Apply
-      #   id: Apply
-      #   run: terraform apply put_object
-      #   continue-on-error: true
+      - name: Terraform Apply
+        id: Apply
+        run: terraform apply put_object
+        continue-on-error: true

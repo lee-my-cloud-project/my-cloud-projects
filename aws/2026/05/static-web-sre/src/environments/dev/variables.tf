@@ -4,7 +4,7 @@ variable "region" {
 }
 
 # S3 #
-# Bucket : To Trigger Github Action 6
+# Bucket : To Trigger Github Action 7
 variable "s3_name" {
   type        = string
   description = "AWS S3의 이름"
