@@ -40,6 +40,21 @@ jobs:
         id: s3api_test-head_object
         run: aws s3api head-object --bucket lee-static-web-sre-state-storage --key dev/state.tfstate
 
+      - name: S3 API test(Get-Bucket)
+        id: s3api_test-get_bucket
+        run: aws s3api get-bucket-location --bucket lee-static-web-sre-state-storage
+
+      - name: S3 API test(List-Object-v2)
+        id: s3api_test-list_objects-v2
+        run: aws s3api list-objects-v2 --bucket lee-static-web-sre-state-storage --prefix dev/
+
+      - name: S3 test(ls)
+        id: s3-ls
+        run: aws s3 ls --bucket lee-static-web-sre-state-storage/dev/
+
+      - name: S3 test (cp)
+        id: s3-cp
+        run: echo testing > test.txt && aws s3 cp test.txt s3://lee-static-web-sre-state-storage/dev/test.txt
       # # Terraform 작업
       # - name: Terraform Setup
       #   uses: hashicorp/setup-terraform@v4.0.1
