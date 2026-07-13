@@ -17,7 +17,7 @@ env:
   ROLE_ARN: arn:aws:iam::345003923266:role/github_action-dev_branch
 
 jobs:
-  test-job:
+  start-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,3 +31,27 @@ jobs:
         with:
           role-arn: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+
+      # Terraform 작업
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: "1.15.4"
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform init -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out put_object -no-color -input=false
+        continue-on-error: true
+
+      - name: Terraform Apply
+        id: Apply
+        run: terraform apply put_object
+        continue-on-error: true
