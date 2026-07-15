@@ -116,24 +116,19 @@ resource "aws_s3_bucket" "static_web_sre-dev" {
 resource "aws_s3_bucket_ownership_controls" "static_web_sre-dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
-# Bucket ACL 설정
-resource "aws_s3_bucket_acl" "static_web_sre-dev" {
-  bucket     = aws_s3_bucket.static_web_sre-dev.id
-  acl        = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
-}
+
 # Bucket Public Access 접근 허용
 resource "aws_s3_bucket_public_access_block" "static_web_sre-dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
 
   # 인터넷을 통한 외부 접근 허용. 단, 내부에 뭐가 있는지는 볼 수 없게하기
-  block_public_acls       = false
-  ignore_public_acls      = false
-  block_public_policy     = true
-  restrict_public_buckets = true
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = false
+  restrict_public_buckets = false
   depends_on              = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
 }
 
@@ -144,8 +139,6 @@ resource "aws_s3_object" "index_page" {
   # 객체 컨텐츠 설정
   content_base64 = "PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCjxoZWFkPg0KPHRpdGxlPkRldiBQYWdlPC90aXRsZT4NCjwvaGVhZD4NCjxib2R5Pg0KDQo8aDE+VGVzdGluZyBQYWdlPC9oMT4NCg0KPC9ib2R5Pg0KPC9odG1sPg=="
   content_type   = "text/html"
-  # 접근 권한 설정
-  acl = "public-read"
 
   depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
 }
@@ -167,6 +160,8 @@ resource "aws_s3_bucket_website_configuration" "dev" {
 resource "aws_s3_bucket_policy" "dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
   policy = templatefile("./iam/policy_docs/bootstrap/dev_bucket.json", { dev_role_arn = aws_iam_role.github_action-dev.arn, dev_bucket_arn = aws_s3_bucket.static_web_sre-dev.arn })
+  #의존성 추가
+  depends_on = [aws_s3_bucket_public_access_block.static_web_sre-dev]
 }
 
 # S3 # 'prod'용 정적 웹사이트 Bucket
@@ -182,24 +177,19 @@ resource "aws_s3_bucket" "static_web_sre-prod" {
 resource "aws_s3_bucket_ownership_controls" "static_web_sre-prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
-# Bucket ACL 설정
-resource "aws_s3_bucket_acl" "static_web_sre-prod" {
-  bucket     = aws_s3_bucket.static_web_sre-prod.id
-  acl        = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-prod]
-}
+
 # Bucket Public Access 접근 허용
 resource "aws_s3_bucket_public_access_block" "static_web_sre-prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
 
   # 인터넷을 통한 외부 접근 허용. 단, 내부에 뭐가 있는지는 볼 수 없게하기
-  block_public_acls       = false
-  ignore_public_acls      = false
-  block_public_policy     = true
-  restrict_public_buckets = true
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = false
+  restrict_public_buckets = false
   depends_on              = [aws_s3_bucket_ownership_controls.static_web_sre-prod]
 }
 
@@ -211,7 +201,6 @@ resource "aws_s3_object" "prod-index_page" {
   content_base64 = "PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCjxoZWFkPg0KPHRpdGxlPlByb2QgUGFnZTwvdGl0bGU+DQo8L2hlYWQ+DQo8Ym9keT4NCg0KPGgxPlByb2R1Y3Rpb24gUGFnZTwvaDE+DQoNCjwvYm9keT4NCjwvaHRtbD4="
   content_type   = "text/html"
   # 접근 권한 설정
-  acl = "public-read"
 
   depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-prod, aws_s3_bucket_public_access_block.static_web_sre-prod]
 }
@@ -233,6 +222,8 @@ resource "aws_s3_bucket_website_configuration" "prod" {
 resource "aws_s3_bucket_policy" "prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
   policy = templatefile("./iam/policy_docs/bootstrap/prod_bucket.json", { prod_role_arn = aws_iam_role.github_action-prod.arn, prod_bucket_arn = aws_s3_bucket.static_web_sre-prod.arn })
+  #의존성 추가
+  depends_on = [aws_s3_bucket_public_access_block.static_web_sre-prod]
 }
 
 # CloudFront # SSL/TLS 용도
