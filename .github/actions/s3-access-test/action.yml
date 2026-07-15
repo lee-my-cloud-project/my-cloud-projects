@@ -1,0 +1,37 @@
+name: Show S3 Bucket Accessability
+
+description: Show if IAM Role can access to S3 Bucket with priviliege
+
+inputs:
+  bucket_name:
+    description: AWS S3 Bucket Name
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # 현재 사용 중인 IAM Role 확인
+    - name: S3 API test(Head-Object)
+      id: s3api_test-head_object
+      run: aws s3api head-object --bucket ${{ inputs.bucket_name }} --key dev/state.tfstate
+      continue-on-error: true
+
+    - name: S3 API test(Get-Bucket)
+      id: s3api_test-get_bucket
+      run: aws s3api get-bucket-location --bucket ${{ inputs.bucket_name }}
+      continue-on-error: true
+
+    - name: S3 API test(List-Object-v2)
+      id: s3api_test-list_objects-v2
+      run: aws s3api list-objects-v2 --bucket ${{ inputs.bucket_name }} --prefix dev/
+      continue-on-error: true
+
+    - name: S3 test(ls)
+      id: s3-ls
+      run: aws s3 ls --bucket ${{ inputs.bucket_name }}
+      continue-on-error: true
+
+    - name: S3 test (cp)
+      id: s3-cp
+      run: echo testing > test.txt && aws s3 cp test.txt s3://${{ inputs.bucket_name }}/private/test.txt
+      continue-on-error: true

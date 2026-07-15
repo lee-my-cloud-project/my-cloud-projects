@@ -15,6 +15,7 @@ permissions:
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::345003923266:role/github_action-dev_branch
+  BUCKET_NAME: lee-static-web-sre-dev
   WORKING_DIR: aws/2026/05/static-web-sre/src/environments/dev/
 
 jobs:
@@ -35,6 +36,12 @@ jobs:
         with:
           role-arn: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+
+      # AWS S3에 지정한 Bucket으로 접근이 되는지 확인
+      - name: Test S3 Access
+        uses: ./.github/actions/s3-access-test
+        with:
+          bucket_name: ${{ env.BUCKET_NAME }}
 
       # Terraform 작업
       - name: Terraform Setup
