@@ -32,7 +32,7 @@ runs:
     - name: S3 test(ls)
       id: s3-ls
       shell: bash
-      run: aws s3 ls --bucket ${{ inputs.bucket_name }}
+      run: aws s3 ls ${{ inputs.bucket_name }}
       continue-on-error: true
 
     - name: S3 test (cp)
