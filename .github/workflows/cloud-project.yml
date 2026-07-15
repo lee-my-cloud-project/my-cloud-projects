@@ -1,0 +1,72 @@
+name: Test Access
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'aws/2026/05/static-web-sre/src/environments/dev/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::345003923266:role/github_action-dev_branch
+  BUCKET_NAME: lee-static-web-sre-dev
+  WORKING_DIR: aws/2026/05/static-web-sre/src/environments/dev/
+
+jobs:
+  start-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      # Git 저장소 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # 현재 사용중인 IAM Role 보여주기
+      - name: Show IAM Role
+        uses: ./.github/actions/show-iam-role
+        with:
+          role-arn: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # AWS S3에 지정한 Bucket으로 접근이 되는지 확인
+      - name: Test S3 Access
+        uses: ./.github/actions/s3-access-test
+        with:
+          bucket_name: ${{ env.BUCKET_NAME }}
+
+      # Terraform 작업
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: "1.15.4"
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform init -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out put_object -var-file dev.tfvars -no-color -input=false
+        continue-on-error: true
+
+      - name: Show Current directory
+        id: show-pwd
+        run: pwd
+
+      - name: Terraform Apply
+        id: Apply
+        run: terraform apply put_object
+        continue-on-error: true
