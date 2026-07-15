@@ -159,7 +159,7 @@ resource "aws_s3_bucket_website_configuration" "dev" {
 # Bucket Policy 설정
 resource "aws_s3_bucket_policy" "dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
-  policy = templatefile("./iam/policy_docs/bootstrap/dev_bucket.json", { dev_role_arn = aws_iam_role.github_action-dev.arn, dev_bucket_arn = aws_s3_bucket.static_web_sre-dev.arn })
+  policy = templatefile("./iam/policy_docs/bootstrap/dev_bucket.json", { dev_role_arn = aws_iam_role.github_action-dev.arn, dev_bucket_arn = aws_s3_bucket.static_web_sre-dev.arn, aws_id = var.aws_id, role_name = var.iam_name-dev })
   #의존성 추가
   depends_on = [aws_s3_bucket_public_access_block.static_web_sre-dev]
 }
@@ -221,7 +221,7 @@ resource "aws_s3_bucket_website_configuration" "prod" {
 # Bucket Policy 설정
 resource "aws_s3_bucket_policy" "prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
-  policy = templatefile("./iam/policy_docs/bootstrap/prod_bucket.json", { prod_role_arn = aws_iam_role.github_action-prod.arn, prod_bucket_arn = aws_s3_bucket.static_web_sre-prod.arn })
+  policy = templatefile("./iam/policy_docs/bootstrap/prod_bucket.json", { prod_role_arn = aws_iam_role.github_action-prod.arn, prod_bucket_arn = aws_s3_bucket.static_web_sre-prod.arn, aws_id = var.aws_id, role_name = var.iam_name-prod })
   #의존성 추가
   depends_on = [aws_s3_bucket_public_access_block.static_web_sre-prod]
 }
