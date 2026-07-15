@@ -22,7 +22,7 @@
         "s3:GetEncryptionConfiguration",
         "s3:ListBucketVersions"
       ],
-      "Resource": "${prod_bucket_arn}/*"
+      "Resource": "${prod_bucket_arn}"
     },
     {
       "Effect": "Allow",

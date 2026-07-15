@@ -23,7 +23,7 @@
         "s3:GetEncryptionConfiguration",
         "s3:ListBucketVersions"
       ],
-      "Resource": "${dev_bucket_arn}/*"
+      "Resource": "${dev_bucket_arn}"
     },
     {
       "Effect": "Allow",
