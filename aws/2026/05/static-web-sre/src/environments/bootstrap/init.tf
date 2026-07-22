@@ -62,7 +62,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # IAM # IAM Role 생성. "github_action-dev"
 resource "aws_iam_role" "github_action-dev" {
   name               = var.iam_name-dev
-  assume_role_policy = templatefile("./iam/role/dev/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_org = var.git_org, git_repo = var.git_repo })
+  assume_role_policy = templatefile("./iam/role/dev/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_repo = var.git_repo })
 
   tags = var.env_bootstrap
 }
@@ -84,7 +84,7 @@ resource "aws_iam_policy_attachment" "github_action-dev" {
 # IAM # IAM Role 생성. "github_action-prod"
 resource "aws_iam_role" "github_action-prod" {
   name               = var.iam_name-prod
-  assume_role_policy = templatefile("./iam/role/prod/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_org = var.git_org, git_repo = var.git_repo })
+  assume_role_policy = templatefile("./iam/role/prod/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_repo = var.git_repo })
 }
 # IAM 정책 문서 생성 "github_action-prod"
 resource "aws_iam_policy" "github_action-prod" {
@@ -116,19 +116,24 @@ resource "aws_s3_bucket" "static_web_sre-dev" {
 resource "aws_s3_bucket_ownership_controls" "static_web_sre-dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
-
+# Bucket ACL 설정
+resource "aws_s3_bucket_acl" "static_web_sre-dev" {
+  bucket     = aws_s3_bucket.static_web_sre-dev.id
+  acl        = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
+}
 # Bucket Public Access 접근 허용
 resource "aws_s3_bucket_public_access_block" "static_web_sre-dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
 
   # 인터넷을 통한 외부 접근 허용. 단, 내부에 뭐가 있는지는 볼 수 없게하기
-  block_public_acls       = true
-  ignore_public_acls      = true
-  block_public_policy     = false
-  restrict_public_buckets = false
+  block_public_acls       = false
+  ignore_public_acls      = false
+  block_public_policy     = true
+  restrict_public_buckets = true
   depends_on              = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
 }
 
@@ -139,6 +144,8 @@ resource "aws_s3_object" "index_page" {
   # 객체 컨텐츠 설정
   content_base64 = "PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCjxoZWFkPg0KPHRpdGxlPkRldiBQYWdlPC90aXRsZT4NCjwvaGVhZD4NCjxib2R5Pg0KDQo8aDE+VGVzdGluZyBQYWdlPC9oMT4NCg0KPC9ib2R5Pg0KPC9odG1sPg=="
   content_type   = "text/html"
+  # 접근 권한 설정
+  acl = "public-read"
 
   depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-dev]
 }
@@ -159,9 +166,7 @@ resource "aws_s3_bucket_website_configuration" "dev" {
 # Bucket Policy 설정
 resource "aws_s3_bucket_policy" "dev" {
   bucket = aws_s3_bucket.static_web_sre-dev.id
-  policy = templatefile("./iam/policy_docs/bootstrap/dev_bucket.json", { dev_role_arn = aws_iam_role.github_action-dev.arn, dev_bucket_arn = aws_s3_bucket.static_web_sre-dev.arn, aws_id = var.aws_id, role_name = var.iam_name-dev })
-  #의존성 추가
-  depends_on = [aws_s3_bucket_public_access_block.static_web_sre-dev]
+  policy = templatefile("./iam/policy_docs/bootstrap/dev_bucket.json", { dev_role_arn = aws_iam_role.github_action-dev.arn, dev_bucket_arn = aws_s3_bucket.static_web_sre-dev.arn })
 }
 
 # S3 # 'prod'용 정적 웹사이트 Bucket
@@ -177,19 +182,24 @@ resource "aws_s3_bucket" "static_web_sre-prod" {
 resource "aws_s3_bucket_ownership_controls" "static_web_sre-prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
-
+# Bucket ACL 설정
+resource "aws_s3_bucket_acl" "static_web_sre-prod" {
+  bucket     = aws_s3_bucket.static_web_sre-prod.id
+  acl        = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-prod]
+}
 # Bucket Public Access 접근 허용
 resource "aws_s3_bucket_public_access_block" "static_web_sre-prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
 
   # 인터넷을 통한 외부 접근 허용. 단, 내부에 뭐가 있는지는 볼 수 없게하기
-  block_public_acls       = true
-  ignore_public_acls      = true
-  block_public_policy     = false
-  restrict_public_buckets = false
+  block_public_acls       = false
+  ignore_public_acls      = false
+  block_public_policy     = true
+  restrict_public_buckets = true
   depends_on              = [aws_s3_bucket_ownership_controls.static_web_sre-prod]
 }
 
@@ -201,6 +211,7 @@ resource "aws_s3_object" "prod-index_page" {
   content_base64 = "PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCjxoZWFkPg0KPHRpdGxlPlByb2QgUGFnZTwvdGl0bGU+DQo8L2hlYWQ+DQo8Ym9keT4NCg0KPGgxPlByb2R1Y3Rpb24gUGFnZTwvaDE+DQoNCjwvYm9keT4NCjwvaHRtbD4="
   content_type   = "text/html"
   # 접근 권한 설정
+  acl = "public-read"
 
   depends_on = [aws_s3_bucket_ownership_controls.static_web_sre-prod, aws_s3_bucket_public_access_block.static_web_sre-prod]
 }
@@ -221,20 +232,7 @@ resource "aws_s3_bucket_website_configuration" "prod" {
 # Bucket Policy 설정
 resource "aws_s3_bucket_policy" "prod" {
   bucket = aws_s3_bucket.static_web_sre-prod.id
-  policy = templatefile("./iam/policy_docs/bootstrap/prod_bucket.json", { prod_role_arn = aws_iam_role.github_action-prod.arn, prod_bucket_arn = aws_s3_bucket.static_web_sre-prod.arn, aws_id = var.aws_id, role_name = var.iam_name-prod })
-  #의존성 추가
-  depends_on = [aws_s3_bucket_public_access_block.static_web_sre-prod]
+  policy = templatefile("./iam/policy_docs/bootstrap/prod_bucket.json", { prod_role_arn = aws_iam_role.github_action-prod.arn, prod_bucket_arn = aws_s3_bucket.static_web_sre-prod.arn })
 }
 
-# IAM # "infra" 브랜치를 위한 IAM Role 준비
-resource "aws_iam_role" "github_action-infra" {
-  name               = var.iam_name-infra
-  assume_role_policy = templatefile("./iam/role/infra/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_org = var.git_org, git_repo = var.git_repo })
-}
-
-# 'PowerUserAccess' 를 사용해 IAM을 제외한 모든 서비스의 권한에서 모든 API 접속 허가. IAM 제한 접근
-resource "aws_iam_policy_attachment" "name" {
-  name = "github-action-infra"
-  roles = [aws_iam_role.github_action-infra.name]
-  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
-}
+# CloudFront # SSL/TLS 용도

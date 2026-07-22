@@ -1,0 +1,43 @@
+name: Test Access
+
+on:
+  push:
+    branches:
+      - infra
+    # paths:
+    #   - 'aws/2026/05/static-web-sre/src/environments/infra/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::345003923266:role/github_action-infra_branch
+  WORKING_DIR: aws/2026/05/static-web-sre/src/environments/infra/
+
+jobs:
+  start-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      # Git 저장소 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # 현재 사용중인 IAM Role 보여주기
+      - name: Show IAM Role
+        uses: ./.github/actions/show-iam-role
+        with:
+          role-arn: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Terraform 작업
+      # - name: Terraform Setup
+      #   uses: hashicorp/setup-terraform@v4.0.1
+      #   with:
+      #     terraform_version: "1.15.4"

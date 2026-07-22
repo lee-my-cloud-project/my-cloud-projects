@@ -12,31 +12,6 @@
         "s3:PutObject"
       ],
       "Resource": "${prod_bucket_arn}/*"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Resource": "${prod_bucket_arn}/*"
-    },
-    {
-      "Effect": "Deny",
-      "Principal": "*",
-      "Action": "*",
-      "Resource": "${prod_bucket_arn}/private/*",
-      "Condition": {
-        "Null":{
-          "aws:PrincipalArn": "true"
-        },
-        "StringNotLike": {
-          "aws:PrincipalArn": [
-            "arn:aws:iam::${aws_id}:role/${role_name}",
-            "arn:aws:sts::${aws_id}:assumed-role/${role_name}/GitHubActions"
-          ]
-        }
-      }
     }
   ]
 }
