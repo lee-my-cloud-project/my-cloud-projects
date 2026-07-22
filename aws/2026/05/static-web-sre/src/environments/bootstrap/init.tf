@@ -226,4 +226,15 @@ resource "aws_s3_bucket_policy" "prod" {
   depends_on = [aws_s3_bucket_public_access_block.static_web_sre-prod]
 }
 
-# CloudFront # SSL/TLS 용도
+# IAM # "infra" 브랜치를 위한 IAM Role 준비
+resource "aws_iam_role" "github_action-infra" {
+  name               = var.iam_name-infra
+  assume_role_policy = templatefile("./iam/role/infra/trust_github_action.json", { oidc_providers = aws_iam_openid_connect_provider.github.arn, git_org = var.git_org, git_repo = var.git_repo })
+}
+
+# 'PowerUserAccess' 를 사용해 IAM을 제외한 모든 서비스의 권한에서 모든 API 접속 허가. IAM 제한 접근
+resource "aws_iam_policy_attachment" "name" {
+  name = "github-action-infra"
+  roles = [aws_iam_role.github_action-infra.name]
+  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+}

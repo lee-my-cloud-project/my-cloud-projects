@@ -154,6 +154,17 @@ variable "iam_name-prod" {
   }
 }
 
+variable "iam_name-infra" {
+  type        = string
+  description = "IAM 리소스 이름 (알파벳, 숫자, +, =, ,, ., @, _, - 허용)"
+
+  validation {
+    # 영문, 숫자 및 지정된 특수문자(+=,.@_-)만 허용 (공백 불가)
+    condition     = can(regex("^[a-zA-Z0-9+=,.@_\\-]+$", var.iam_name-infra))
+    error_message = "IAM 이름은 영문, 숫자 및 다음 특수문자만 포함할 수 있습니다: +, =, ,, ., @, _, -"
+  }
+}
+
 # Github Action
 variable "client_id_list" {
   type        = list(string)
