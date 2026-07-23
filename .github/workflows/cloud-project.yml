@@ -15,6 +15,7 @@ permissions:
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::345003923266:role/github_action-infra_branch
+  BUCKET_NAME: lee-static-web-sre-state-storage
   WORKING_DIR: aws/2026/05/static-web-sre/src/environments/infra/
 
 jobs:
@@ -36,8 +37,14 @@ jobs:
           role-arn: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # S3 State 저장용 Bucket 접근 테스트
+      - name: Check Access
+        uses: ./.github/actions/s3-access-test
+        with:
+          bucket_name: ${{ env.BUCKET_NAME }}
+
       # Terraform 작업
-      # - name: Terraform Setup
-      #   uses: hashicorp/setup-terraform@v4.0.1
-      #   with:
-      #     terraform_version: "1.15.4"
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: "1.15.4"
