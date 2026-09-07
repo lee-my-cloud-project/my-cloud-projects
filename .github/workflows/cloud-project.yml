@@ -50,4 +50,4 @@ jobs:
         run: terraform init -no-color
 
       - name: Terraform Apply
-        run: terraform destroy
+        run: terraform apply -destroy -var-file ${{ env.TERRAFORM_ENV_FILE }} -var email_address=${{ secrets.EMAIL_ADDRESS }} -auto-approve
