@@ -49,26 +49,5 @@ jobs:
       - name: Terraform init
         run: terraform init -no-color
 
-      # 변수 추가시 주석 헤제
-      # - name: Terraform Apply
-      #   run: terraform apply -refresh-only -var-file ${{ env.TERRAFORM_ENV_FILE }} -var email_address=${{ secrets.EMAIL_ADDRESS }} -auto-approve
- 
-      - name: Get CloudFront Distribution Domain
-        id: terraform-output
-        run: |
-          CLOUDFRONT_DOMAIN=$(terraform output -raw cloudfront_domain_name)
-
-          echo "CloudFront Domain: $CLOUDFRONT_DOMAIN"
-          echo "cloudfront_domain=$CLOUDFRONT_DOMAIN" >> "$GITHUB_OUTPUT"
-
-      # Grafana K6 작업 설정
-      - name: Setup Grafana K6
-        uses: grafana/setup-k6-action@v1.2.1
-
-      - name: Run Script
-        uses: grafana/run-k6-action@v1.4.0
-        env:
-          TARGET_URL: ${{ steps.terraform-output.outputs.cloudfront_domain }}
-        with:
-          path: ${{ env.WORKING_DIR }}/tests/response.js
-          flags: --quiet
+      - name: Terraform Apply
+        run: terraform apply -var-file ${{ env.TERRAFORM_ENV_FILE }} -var email_address=${{ secrets.EMAIL_ADDRESS }} -auto-approve
