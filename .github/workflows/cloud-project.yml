@@ -1,4 +1,4 @@
-name: Grafana K6 Test
+name: Destroy Infra. Cleaning...
 
 on:
   push:
@@ -22,7 +22,7 @@ env:
   TERRAFORM_ENV_FILE: infra.tfvars
 
 jobs:
-  connection-test:
+  remove-infra:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,4 +50,4 @@ jobs:
         run: terraform init -no-color
 
       - name: Terraform Apply
-        run: terraform apply -var-file ${{ env.TERRAFORM_ENV_FILE }} -var email_address=${{ secrets.EMAIL_ADDRESS }} -auto-approve
+        run: terraform destroy
