@@ -1,4 +1,4 @@
-name: Test Access
+name: Remove Object
 
 on:
   push:
@@ -19,7 +19,7 @@ env:
   WORKING_DIR: aws/2026/05/static-web-sre/src/environments/dev/
 
 jobs:
-  start-deploy:
+  remove-object:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,12 +37,6 @@ jobs:
           role-arn: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # AWS S3에 지정한 Bucket으로 접근이 되는지 확인
-      - name: Test S3 Access
-        uses: ./.github/actions/s3-access-test
-        with:
-          bucket_name: ${{ env.BUCKET_NAME }}
-
       # Terraform 작업
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v4.0.1
@@ -55,18 +49,12 @@ jobs:
 
       - name: Terraform Validate
         id: validate
-        run: terraform init -no-color
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out put_object -var-file dev.tfvars -no-color -input=false
-        continue-on-error: true
-
-      - name: Show Current directory
-        id: show-pwd
-        run: pwd
+        run: terraform plan -destroy -out remove-object -var-file dev.tfvars -no-color -input=false
 
       - name: Terraform Apply
         id: Apply
-        run: terraform apply put_object
-        continue-on-error: true
+        run: terraform apply remove-object
