@@ -1,4 +1,4 @@
-name: Deploy S3 static website
+name: Remove All S3 Objects
 
 on:
   push:
@@ -19,7 +19,7 @@ env:
   WORKING_DIR: aws/2026/05/static-web-sre/src/environments/prod/
 
 jobs:
-  start-deploy:
+  remove-object:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -55,18 +55,12 @@ jobs:
 
       - name: Terraform Validate
         id: validate
-        run: terraform init -no-color
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out put_object -var-file prod.tfvars -no-color -input=false
-        continue-on-error: true
-
-      - name: Show Current directory
-        id: show-pwd
-        run: pwd
+        run: terraform plan -destroy -out remove_object -var-file prod.tfvars -no-color -input=false
 
       - name: Terraform Apply
         id: Apply
-        run: terraform apply put_object
-        continue-on-error: true
+        run: terraform apply remove_object
