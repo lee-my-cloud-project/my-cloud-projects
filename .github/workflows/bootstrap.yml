@@ -10,11 +10,16 @@ on:
 # Runner 환경 변수
 env:
   TERRAFORM_PLAN_FILE: create_workspace
+  WORKING_DIRECTORY: 'aws/2026/11/bootstrap/'
 
 # Jobs 생성
 jobs:
   bootstrap-terraform-cloud:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
     steps:
       - name: "저장소 소스코드 가져오기"
         uses: actions/checkout@v7.0.1
