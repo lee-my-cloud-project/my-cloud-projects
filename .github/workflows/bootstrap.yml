@@ -31,7 +31,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.ORGANIZATION_LEE_PERSONAL_PROJECT_TOKEN }}
 
       - name: "Terraform Provider 설치"
-        run: terraform init -input=false
+        run: terraform init -input=false -reconfigure
 
       # - name: "Terraform Validation"
       #   run: terraform validate -no-color
