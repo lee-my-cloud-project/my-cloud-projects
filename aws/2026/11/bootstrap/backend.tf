@@ -4,8 +4,9 @@ terraform {
     organization = "Lee-personal-project"
 
     # TFC Workspace 생성
-    workspaces{
+    workspaces {
       name = "2026NovProject-bluegreendeploy-bootstrap"
+      project = "Cloud Projects"
     }
   }
 }

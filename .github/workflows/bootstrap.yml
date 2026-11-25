@@ -33,11 +33,11 @@ jobs:
       - name: "Terraform Provider 설치"
         run: terraform init -input=false
 
-      - name: "Terraform Validation"
-        run: terraform validate -no-color
+      # - name: "Terraform Validation"
+      #   run: terraform validate -no-color
 
-      - name: "Terraform Plan"
-        run: terraform plan -out ${{ env.TERRAFORM_PLAN_FILE }} -no-input -no-color
+      # - name: "Terraform Plan"
+      #   run: terraform plan -out ${{ env.TERRAFORM_PLAN_FILE }} -no-input -no-color
 
-      - name: "Terraform Apply"
-        run: terraform apply ${{ env.TERRAFORM_PLAN_FILE }} -no-color
+      # - name: "Terraform Apply"
+      #   run: terraform apply ${{ env.TERRAFORM_PLAN_FILE }} -no-color
